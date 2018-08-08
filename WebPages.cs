@@ -53,8 +53,7 @@ namespace nanoframework.serial
         public static string RouterSettingsPage()
         {
             string t = string.Empty;
-
-            // t += "<html xmlns=""http://www.w3.org/1999/xhtml"" >"
+           
             t += CrLf + "<head><title>";
             t += CrLf + "	Router Settings";
             t += CrLf + "</title></head>";
