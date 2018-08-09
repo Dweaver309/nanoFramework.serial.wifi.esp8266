@@ -62,7 +62,7 @@ namespace nanoframework.serial
             ESP8266.GetVersion();
 
 
-           ESP8266.Connect("weaver", "3098280065");
+           ESP8266.Connect("SSID", "Password");
 
             //***Rem Uncomment to set time
             //ESP8266.SetTime();
