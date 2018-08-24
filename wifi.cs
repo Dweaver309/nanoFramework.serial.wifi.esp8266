@@ -11,6 +11,8 @@ using System.Threading;
 using System.Text;
 using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
+using Windows.Devices.Gpio;
+
 
 namespace nanoframework.serial.driver
 {
@@ -69,32 +71,22 @@ namespace nanoframework.serial.driver
         // Updated in SendServerRequest
         private static string LinkedID = "0";
 
-        private static Boolean UsingLeds = true;
-
         // Hours to adjust UTC time
         private static int LocalTimeOffSet = -5;
-        
-        /// <summary>
-        /// Constructor for serial WiFi
-        /// Example:  WiFi ESP8266 = new WiFi();
-        /// </summary>
-        /// <param name="UTCLocalTimeOffSet"></param>
-        /// <param name="CommandDelayMS"></param>
-        /// <param name="UseLeds"></param>
+
+        // Constructor for serial WiFi
+        // Example:  WiFi ESP8266 = new WiFi();
         public WiFi(int UTCLocalTimeOffSet = -5, int CommandDelayMS = 4000, Boolean UseLeds = true)
         {
 
+                      
             // COM6 in Netduino 3, STM32F769IDiscovery (Tx, Rx pins exposed in Arduino header TX->D1, RX->D0)
             // Open port
             Port = SerialDevice.FromId("COM6");
 
             // Used to set date and time in GetTimeFromString
             LocalTimeOffSet = UTCLocalTimeOffSet;
-
-            // Used in ProcesssServerRequest
-            // Set to false if not using Netduino 3
-            UsingLeds = UseLeds;
-
+                       
             CommandDelay = CommandDelayMS;
 
             // set  device parameters
@@ -132,15 +124,11 @@ namespace nanoframework.serial.driver
         {
 
             SendCommand("AT+GMR");
-
             Thread.Sleep(1000);
 
         }
-        
-        /// <summary>
-        /// Updated in ParseIPAddress
-        /// </summary>
-        /// <returns></returns>
+
+        // Updated in ParseIPAddress
         public string GetIPAddress()
         {
 
@@ -148,12 +136,6 @@ namespace nanoframework.serial.driver
 
         }
 
-        /// <summary>
-        /// Parses the string StingRead in ESPDataReceived
-        /// Called from SendServerRequest
-        /// Sets the LinkedID
-        /// </summary>
-        /// <returns>The server GET request line</returns>
         private static string FindGetRequest()
         {
             string srd = string.Empty;
@@ -198,7 +180,7 @@ namespace nanoframework.serial.driver
         }
 
         /// <summary>
-        /// Send byte array to device
+        /// Send str to device
         /// </summary>
         private static void SendDataBytes(byte[] ByteArr)
         {
@@ -226,7 +208,21 @@ namespace nanoframework.serial.driver
             Console.WriteLine("String Sent: >> " + str);
 
         }
-       
+
+        private static void SendImage(string Base64String)
+        {
+
+
+            byte[] stringBytes = Encoding.UTF8.GetBytes(Base64String);
+
+            outputDataWriter.WriteBytes(stringBytes);
+
+            outputDataWriter.Store();
+
+            //Console.WriteLine("Base64String Sent: >> " + Base64String);
+
+        }
+
         /// <summary>
         /// Parse the string and set time and date
         /// Uses the LocalTimeOffSet property to set the local time
@@ -522,14 +518,10 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 1 Off";
-
-                // Update with WiFi constructor
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED1, false);
-
-                }
+               
+                GpioPin LEDUser  = GpioController.GetDefault().OpenPin(73);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.Low);
 
                 Console.WriteLine("LED 1 Off");
 
@@ -540,13 +532,10 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 1 On";
-
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED1, true);
-
-                }
+                
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(73);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.High);
 
                 Console.WriteLine("LED 1 On");
 
@@ -557,14 +546,11 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 2 Off";
+               
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(75);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.Low);
 
-                // Updated with constructor WiFi
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED2, false);
-
-                }
 
                 Console.WriteLine("LED 2 Off");
 
@@ -575,13 +561,10 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 2 On";
-
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED2, true);
-
-                }
+                
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(75);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.High);
 
                 Console.WriteLine("LED 2 Off");
 
@@ -592,13 +575,11 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 3 Off";
+                
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(78);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.Low);
 
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED3, false);
-
-                }
 
                 Console.WriteLine("LED 3 Off");
 
@@ -609,13 +590,11 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 3 On";
+               
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(78);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.High);
 
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LED3, true);
-
-                }
 
                 Console.WriteLine("LED 3 On");
 
@@ -626,13 +605,11 @@ namespace nanoframework.serial.driver
             {
 
                 Status = "LED 4 Off";
+               
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(10);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.Low);
 
-                if (UsingLeds)
-                {
-
-                    LEDController.ToggleLED(LEDController.LEDUser, false);
-
-                }
 
                 Console.WriteLine("LED 4 Off");
 
@@ -644,13 +621,10 @@ namespace nanoframework.serial.driver
 
                 Status = "LED 4 On";
 
-                if (UsingLeds)
-                {
-
-                   LEDController.ToggleLED(LEDController.LEDUser, true);
-
-                }
-
+                GpioPin LEDUser = GpioController.GetDefault().OpenPin(10);
+                LEDUser.SetDriveMode(GpioPinDriveMode.Output);
+                LEDUser.Write(GpioPinValue.High);
+                
                 Console.WriteLine("LED 4 On");
 
                 return;
@@ -852,7 +826,7 @@ namespace nanoframework.serial.driver
 
             CurrentMode = (int)Mode.TCPSending;
 
-            // Send this first 
+            // Send this first
             string strResp = "HTTP/1.1 200 OK" + CrLf + "Content-Type: image/x-icon; charset = UTF - 8" +
                 CrLf + "Cache - Control: no - cache" + CrLf + "Connection: close" + CrLf + CrLf;
 
@@ -861,7 +835,9 @@ namespace nanoframework.serial.driver
             SendData("AT+CIPSENDBUF=" + LinkedID + "," + arr.Length + CrLf);
 
             SendDataBytes(arr);
-            
+
+            Console.WriteLine("HTTP response length: >>" + arr.Length);
+
             // Send the image
             byte[] icon = WebPages.faviconpage();
 
@@ -885,10 +861,17 @@ namespace nanoframework.serial.driver
 
                 SendData("AT+CIPSENDBUF=" + LinkedID + "," + BytesToRead + CrLf);
 
+                //Array.
+                //string DataToSend = srd.Substring(BytesSent, BytesToRead);
+
                 byte[] DataToSend = new byte[SMAX_BUFF];
 
+                //int index = Array.IndexOf(icon,BytesSent,BytesToRead );
+                // Array.Copy(icon, index, DataToSend);
                 Array.Copy(icon, BytesSent, DataToSend, 0, BytesToRead);
-               
+
+
+                //SendDatab(DataToSend);
                 SendDataBytes(DataToSend);
 
                 BytesSent += BytesToRead;
@@ -899,6 +882,9 @@ namespace nanoframework.serial.driver
 
         }
     
+
+        
+        
         /// <summary>
         /// Sends the data requested 
         /// </summary>
@@ -913,17 +899,17 @@ namespace nanoframework.serial.driver
 
                 Console.WriteLine("Server Request: >> " + rstr);
 
-                //Send favicon
                 if (InString(rstr, "favicon"))
                 {
-                    
+
+                    // Console.WriteLine("HTTP/1.1 404 NOT FOUND\r\nConnection: close\r\nContent-Length: 0" + CrLf + CrLf);
                     SendFavicon();
 
                 }
 
-                // Process web pages
                 else
                 {
+
 
                     if (APServerMode)
                     {
@@ -941,6 +927,10 @@ namespace nanoframework.serial.driver
                         srd = WebPages.DefaultPage(Status) + CrLf + CrLf;
 
                     }
+
+
+
+
 
                     CurrentMode = (int)Mode.TCPSending;
 
@@ -973,7 +963,6 @@ namespace nanoframework.serial.driver
                     SendData("AT+CIPCLOSE=" + LinkedID + CrLf);
 
                 }
-
             }
 
             catch (Exception ex)
@@ -982,11 +971,9 @@ namespace nanoframework.serial.driver
                 Console.WriteLine("Error: SendServerRequest: " + ex.ToString());
 
             }
-
         }
-        
-    }
-
+            
+            }
 }
         
 
