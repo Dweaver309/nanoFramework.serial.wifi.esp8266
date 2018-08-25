@@ -106,9 +106,6 @@ namespace nanoframework.serial.driver
             LED3 = GpioController.GetDefault().OpenPin(Led3Number);
             LED3.SetDriveMode(GpioPinDriveMode.Output);
 
-
-
-
             // COM6 in Netduino 3, STM32F769IDiscovery (Tx, Rx pins exposed in Arduino header TX->D1, RX->D0)
             // Open port
             Port = SerialDevice.FromId("COM6");
